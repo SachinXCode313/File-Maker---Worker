@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import pdfRoutes from "./routes/pdf.js";
+import uploadPdfRouter from "./api/uploadPdf.js";
 import path from "path";
 
 const app = express();
@@ -13,7 +13,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/public", express.static("/tmp"));
 
 // API routes
-app.use("/api", pdfRoutes);
+app.use("/api", uploadPdfRouter);
 
 // Root endpoint (for testing)
 app.get("/", (req, res) => {
