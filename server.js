@@ -1,30 +1,27 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
+import pdfRoutes from "./routes/pdf.js";
 import path from "path";
-import { fileURLToPath } from "url";
-import uploadPdfRouter from "./api/uploadPdf.js";
 
-dotenv.config();
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(cors()); // Allow all origins — can restrict to specific frontend if needed
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
 
-// Static folder for serving files publicly
-app.use("/public", express.static(path.join(__dirname, "uploads")));
+// Static serving for PDFs (tmp folder)
+app.use("/public", express.static("/tmp"));
 
-// Root endpoint — health check
+// API routes
+app.use("/api", pdfRoutes);
+
+// Root endpoint (for testing)
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "Server running fine ✅" });
+  res.status(200).json({ success: true, message: "Server is running ✅" });
 });
 
-// Routes
-app.use("/api", uploadPdfRouter);
-
+// Start server (local dev)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
+export default app; // for vercel
