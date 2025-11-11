@@ -10,13 +10,13 @@ const __dirname = path.dirname(__filename);
 // POST /api/uploadPdf
 router.post("/uploadPdf", async (req, res) => {
   try {
-    const { fileName, base64 } = req.body;
-
-    if (!fileName || !base64) {
-      return res.status(400).json({ error: "Missing fileName or base64" });
+    const { fileName, fileContent } = req.body;
+    console.log(req.body)
+    if (!fileName || !fileContent) {
+      return res.status(400).json({ error: "Missing fileName or fileContent" });
     }
 
-    const buffer = Buffer.from(base64, "base64");
+    const buffer = Buffer.from(fileContent, "fileContent");
     const uploadsDir = path.join(__dirname, "../uploads");
 
     // Ensure folder exists
