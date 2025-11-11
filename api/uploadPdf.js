@@ -10,7 +10,6 @@ const __dirname = path.dirname(__filename);
 // POST /api/uploadPdf
 router.post("/uploadPdf", async (req, res) => {
   try {
-    // Example: assume Zoho sends base64 PDF content
     const { fileName, base64 } = req.body;
 
     if (!fileName || !base64) {
@@ -18,15 +17,21 @@ router.post("/uploadPdf", async (req, res) => {
     }
 
     const buffer = Buffer.from(base64, "base64");
-    const filePath = path.join(__dirname, "../uploads", fileName);
+    const uploadsDir = path.join(__dirname, "../uploads");
 
+    // Ensure folder exists
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
+
+    const filePath = path.join(uploadsDir, fileName);
     fs.writeFileSync(filePath, buffer);
 
     const publicUrl = `${req.protocol}://${req.get("host")}/public/${fileName}`;
     res.status(200).json({ success: true, publicUrl });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
