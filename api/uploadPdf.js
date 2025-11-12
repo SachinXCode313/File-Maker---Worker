@@ -1,38 +1,40 @@
 import express from "express";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { put } from "@vercel/blob";
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 router.post("/uploadPdf", async (req, res) => {
   try {
     const { fileName, fileContent } = req.body;
-
     if (!fileName || !fileContent) {
       return res.status(400).json({ error: "Missing fileName or fileContent" });
     }
 
-    // Decode Base64 → Buffer
+    // Create a unique file name to avoid collisions
+    // const uniqueName = `${crypto.randomUUID()}_${fileName}`;
+
+    // Convert Base64 → Buffer
     const buffer = Buffer.from(fileContent, "base64");
 
-    // Save file in Vercel temporary dir
-    const tmpPath = path.join("/tmp", fileName);
-    fs.writeFileSync(tmpPath, buffer);
+    // Upload to Vercel Blob with TTL
+    const { url } = await put(`orders/${fileContent}`, buffer, {
+      access: "public",       // makes file publicly accessible
+      allowOverwrite: true,
+      addRandomSuffix: false, // file name stays as given (optional)
+      contentType: "application/pdf",
+      cacheControlMaxAge: 0,
+      // Optional TTL (e.g., 15 minutes)
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    });
 
-    // Generate public URL
-    const publicUrl = `${req.protocol}://${req.get("host")}/public/${fileName}`;
-
-    console.log(`✅ PDF temporarily saved: ${tmpPath}`);
+    console.log(`✅ Uploaded PDF: ${url}`);
     res.status(200).json({
       success: true,
-      message: "PDF generated successfully",
-      publicUrl,
+      message: "PDF uploaded to Blob successfully",
+      publicUrl: url,
     });
   } catch (err) {
-    console.error("❌ Error saving PDF:", err);
+    console.error("❌ Error uploading to Blob:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

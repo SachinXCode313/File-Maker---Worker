@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
 // Static serving for PDFs (tmp folder)
-app.use("/public", express.static("/tmp"));
+// app.use("/public", express.static("/tmp"));
 
 // API routes
 app.use("/api", uploadPdfRouter);

@@ -11,6 +11,9 @@
         "src": "/(.*)",
         "dest": "server.js"
       }
-    ]
+    ],
+    "storage": {
+    "blob": true
+  }
   }
   
