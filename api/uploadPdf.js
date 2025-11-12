@@ -1,5 +1,8 @@
 import express from "express";
 import { put } from "@vercel/blob";
+import dotenv from "dotenv"
+
+dotenv.config();
 
 const router = express.Router();
 
@@ -17,8 +20,9 @@ router.post("/uploadPdf", async (req, res) => {
     const buffer = Buffer.from(fileContent, "base64");
 
     // Upload to Vercel Blob with TTL
-    const { url } = await put(`orders/${fileContent}`, buffer, {
+    const { url } = await put(`orders/${fileName}`, buffer, {
       access: "public",       // makes file publicly accessible
+      token: process.env.BLOB_READ_WRITE_TOKEN,
       allowOverwrite: true,
       addRandomSuffix: false, // file name stays as given (optional)
       contentType: "application/pdf",
